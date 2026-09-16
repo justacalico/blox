@@ -105,7 +105,6 @@ abstract final class BloxTheme {
       colorScheme: const ColorScheme.dark(
         primary: BloxColors.ctaOrange,
         surface: BloxColors.panel,
-        onSurface: BloxColors.ink,
       ),
       splashFactory: NoSplash.splashFactory,
     );

@@ -1,0 +1,21 @@
+{
+  "@@locale": "zh",
+  "appTitle": "Blox",
+  "tagline": "填满行列,消除方块。",
+  "play": "开始",
+  "score": "分数",
+  "best": "最高",
+  "newBest": "新纪录!",
+  "gameOver": "游戏结束",
+  "noMoves": "无处可放了",
+  "playAgain": "再来一局",
+  "backToMenu": "菜单",
+  "pause": "暂停",
+  "resume": "继续",
+  "restart": "重开",
+  "settings": "设置",
+  "haptics": "震动",
+  "dragHint": "把方块拖到棋盘上",
+  "combo": "连击 x{count}",
+  "pointsEarned": "+{points}"
+}

@@ -1,0 +1,85 @@
+{
+  "@@locale": "en",
+  "appTitle": "Blox",
+  "@appTitle": {
+    "description": "The name of the app, shown on the menu screen."
+  },
+  "tagline": "Fill rows. Clear the board.",
+  "@tagline": {
+    "description": "Short tagline under the title on the menu screen."
+  },
+  "play": "Play",
+  "@play": {
+    "description": "Button that starts a new run."
+  },
+  "score": "Score",
+  "@score": {
+    "description": "Label for the current score."
+  },
+  "best": "Best",
+  "@best": {
+    "description": "Label for the all time best score."
+  },
+  "newBest": "New best!",
+  "@newBest": {
+    "description": "Shown when the player beats their best score."
+  },
+  "gameOver": "Game over",
+  "@gameOver": {
+    "description": "Title of the game over screen."
+  },
+  "noMoves": "No moves left",
+  "@noMoves": {
+    "description": "Subtitle on the game over screen."
+  },
+  "playAgain": "Play again",
+  "@playAgain": {
+    "description": "Button that restarts the run from the game over screen."
+  },
+  "backToMenu": "Menu",
+  "@backToMenu": {
+    "description": "Button that returns to the menu screen."
+  },
+  "pause": "Pause",
+  "@pause": {
+    "description": "Button that pauses the game."
+  },
+  "resume": "Resume",
+  "@resume": {
+    "description": "Button that resumes a paused game."
+  },
+  "restart": "Restart",
+  "@restart": {
+    "description": "Button that abandons the current run and starts a new one."
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Button that opens the settings sheet."
+  },
+  "haptics": "Haptics",
+  "@haptics": {
+    "description": "Toggle label for vibration feedback."
+  },
+  "dragHint": "Drag a piece onto the board",
+  "@dragHint": {
+    "description": "One line tutorial hint under the piece tray."
+  },
+  "combo": "Combo x{count}",
+  "@combo": {
+    "description": "Popup shown when the player clears lines on consecutive placements.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsEarned": "+{points}",
+  "@pointsEarned": {
+    "description": "Floating popup that shows points earned by a clear.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  }
+}

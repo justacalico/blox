@@ -335,7 +335,7 @@ class _GearButton extends StatelessWidget {
 }
 
 class _GearGlyph extends StatelessWidget {
-  _GearGlyph();
+  const _GearGlyph();
 
   @override
   Widget build(BuildContext context) {

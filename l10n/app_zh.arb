@@ -15,6 +15,7 @@
   "restart": "重开",
   "settings": "设置",
   "haptics": "震动",
+  "sound": "音效",
   "dragHint": "把方块拖到棋盘上",
   "combo": "连击 x{count}",
   "pointsEarned": "+{points}"

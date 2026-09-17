@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'Haptics'**
   String get haptics;
 
+  /// Toggle label for sound effects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get sound;
+
   /// One line tutorial hint under the piece tray.
   ///
   /// In en, this message translates to:

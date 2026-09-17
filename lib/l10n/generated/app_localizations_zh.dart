@@ -54,6 +54,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get haptics => '震动';
 
   @override
+  String get sound => '音效';
+
+  @override
   String get dragHint => '把方块拖到棋盘上';
 
   @override

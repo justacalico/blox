@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get haptics => 'Haptics';
 
   @override
+  String get sound => 'Sound';
+
+  @override
   String get dragHint => 'Drag a piece onto the board';
 
   @override

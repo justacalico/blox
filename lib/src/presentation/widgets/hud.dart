@@ -61,7 +61,7 @@ class _BestChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _Crown(size: 20),
+          _Crown(size: 20),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

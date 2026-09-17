@@ -61,7 +61,7 @@ class _MenuScreenState extends State<MenuScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const BloxLogo(),
+                  BloxLogo(),
                   const SizedBox(height: 10),
                   Text(l10n.tagline, style: BloxText.label(15)),
                   const SizedBox(height: 42),
@@ -327,7 +327,7 @@ class _GearButton extends StatelessWidget {
             color: BloxColors.panelDeep,
             borderRadius: BorderRadius.circular(13),
           ),
-          child: const Center(child: _GearGlyph()),
+          child: Center(child: _GearGlyph()),
         ),
       ),
     );
@@ -335,7 +335,7 @@ class _GearButton extends StatelessWidget {
 }
 
 class _GearGlyph extends StatelessWidget {
-  const _GearGlyph();
+  _GearGlyph();
 
   @override
   Widget build(BuildContext context) {

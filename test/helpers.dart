@@ -61,6 +61,14 @@ Piece square2([int color = 0]) => Piece(
       color,
     );
 
+Piece line2h([int color = 0]) => Piece(
+      PieceShape(
+        'l2h',
+        const [(row: 0, col: 0), (row: 0, col: 1)],
+      ),
+      color,
+    );
+
 Piece corner3([int color = 0]) => Piece(
       PieceShape('c3', const [
         (row: 0, col: 0),

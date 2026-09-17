@@ -3,6 +3,7 @@ import 'package:blox/src/game/score_store.dart';
 import 'package:blox/src/presentation/board_layout.dart';
 import 'package:blox/src/presentation/screens/game_screen.dart';
 import 'package:blox/src/presentation/widgets/board_view.dart';
+import 'package:blox/src/presentation/widgets/particle_layer.dart';
 import 'package:blox/src/presentation/widgets/tray_view.dart';
 import 'package:blox/src/settings.dart';
 import 'package:flutter/widgets.dart';
@@ -17,16 +18,16 @@ Offset cellCenter(WidgetTester tester, int row, int col) {
   return boardRect.topLeft + layout.cellRect(row, col).center;
 }
 
-/// The position the pointer must reach for a 1x1-ish piece anchored at
+/// The position the pointer must reach for a w-by-h piece anchored at
 /// (row, col): the piece floats above the finger by the lift distance.
-Offset pointerFor(WidgetTester tester, int row, int col) {
+Offset pointerFor(WidgetTester tester, int row, int col,
+    {int w = 1, int h = 1}) {
   final boardRect = tester.getRect(find.byType(BoardView));
   final layout = BoardLayout(boardPx: boardRect.width);
   final lift = layout.cellPx * 1.7 + 12;
-  final pieceHalf = layout.cellPx / 2;
   final target = boardRect.topLeft +
       layout.cellOrigin(row, col) +
-      Offset(pieceHalf, pieceHalf);
+      Offset(w * layout.cellPx / 2, h * layout.cellPx / 2);
   return target + Offset(0, lift);
 }
 
@@ -141,6 +142,153 @@ void main() {
     await tester.tap(find.text('Play again'));
     await tester.pumpAndSettle();
     expect(find.text('Game over'), findsNothing);
+
+    // The dealer is dry, so the fresh game ends immediately too.
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+    expect(find.text('Game over'), findsOneWidget);
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('dropping on an occupied cell does not place', (tester) async {
+    final engine = scriptedEngine([
+      [dot(), dot(), dot()],
+    ]);
+    await pumpGame(tester, engine);
+
+    Future<void> dragSlot(int slot, int row, int col) async {
+      final target = find
+          .descendant(
+            of: find.byType(TrayView),
+            matching: find.byType(Listener),
+          )
+          .at(slot);
+      final gesture = await tester.startGesture(tester.getCenter(target));
+      await gesture.moveTo(pointerFor(tester, row, col));
+      await tester.pump();
+      await gesture.up();
+      await tester.pump();
+    }
+
+    await dragSlot(0, 2, 2);
+    expect(engine.board.colorAt(2, 2), isNotNull);
+    await dragSlot(1, 2, 2);
+    // The second piece bounced off: slot 1 is still full, board unchanged.
+    expect(engine.tray[1], isNotNull);
+    expect(engine.board.colorAt(2, 2), isNotNull);
+  });
+
+  testWidgets('multi-line clears show combo popup and particles',
+      (tester) async {
+    final engine = scriptedEngine([
+      [dot(), line2h(5), dot()],
+    ], preset: (b) {
+      // Row 4 and column 4 both miss only (4,4). Row 6 misses (6,4) and
+      // (6,5); the column clear reopens (6,4), so a horizontal domino there
+      // finishes the row.
+      for (var i = 0; i < 8; i++) {
+        if (i != 4) b.fill(4, i, 2);
+        if (i != 4) b.fill(i, 4, 3);
+        if (i != 5) b.fill(6, i, 1);
+      }
+    });
+    final state = await pumpGame(tester, engine);
+
+    Future<void> dragSlot(int slot, int row, int col,
+        {int w = 1, int h = 1}) async {
+      final target = find
+          .descendant(
+            of: find.byType(TrayView),
+            matching: find.byType(Listener),
+          )
+          .at(slot);
+      final gesture = await tester.startGesture(tester.getCenter(target));
+      await gesture.moveTo(pointerFor(tester, row, col, w: w, h: h));
+      await tester.pump();
+      await gesture.up();
+      await tester.pump();
+    }
+
+    await dragSlot(0, 4, 4);
+    expect(state.engine.score, greaterThan(0));
+    expect(
+      tester
+          .state<ParticleLayerState>(find.byType(ParticleLayer))
+          .isActive,
+      isTrue,
+    );
+    await tester.pumpAndSettle();
+
+    await dragSlot(1, 6, 4, w: 2);
+    expect(find.text('Combo x2'), findsOneWidget);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('pause panel restart resets the game', (tester) async {
+    final engine = scriptedEngine([
+      [dot(), dot(), dot()],
+      [dot(), dot(), dot()],
+    ]);
+    await pumpGame(tester, engine);
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final gesture = await tester.startGesture(tester.getCenter(slot));
+    await gesture.moveTo(pointerFor(tester, 3, 3));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(engine.score, greaterThan(0));
+
+    await tester.tap(find.bySemanticsLabel('Pause'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Restart'));
+    await tester.pumpAndSettle();
+    expect(engine.score, 0);
+    expect(find.text('Resume'), findsNothing);
+  });
+
+  testWidgets('pause panel sound toggle and back-to-menu', (tester) async {
+    final settings = SettingsStore.memory();
+    await pumpGame(
+      tester,
+      scriptedEngine([
+        [dot(), dot(), dot()],
+      ]),
+      settings: settings,
+    );
+    await tester.tap(find.bySemanticsLabel('Pause'));
+    await tester.pumpAndSettle();
+    expect(settings.sound, isTrue);
+    await tester.tap(find.text('Sound'));
+    await tester.pumpAndSettle();
+    expect(settings.sound, isFalse);
+
+    // The screen is the root route here, so maybePop has nowhere to go and
+    // the panel stays up.
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Resume'), findsOneWidget);
+  });
+
+  testWidgets('cancelling a drag leaves the tray intact', (tester) async {
+    final engine = scriptedEngine([
+      [dot(), dot(), dot()],
+    ]);
+    await pumpGame(tester, engine);
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final gesture = await tester.startGesture(tester.getCenter(slot));
+    await gesture.moveTo(pointerFor(tester, 3, 3));
+    await tester.pump();
+    await gesture.cancel();
+    await tester.pump();
+    expect(engine.tray[0], isNotNull);
+    expect(engine.board.colorAt(3, 3), isNull);
   });
 
   testWidgets('haptics toggle flips in pause panel', (tester) async {

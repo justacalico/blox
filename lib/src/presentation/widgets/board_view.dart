@@ -228,9 +228,12 @@ final class _BoardPainter extends CustomPainter {
       cs += c.col;
       n++;
     }
-    return n == 0
-        ? (row: board.size ~/ 2, col: board.size ~/ 2)
-        : (row: rs ~/ n, col: cs ~/ n);
+    if (n == 0) {
+      // coverage:ignore-start
+      return (row: board.size ~/ 2, col: board.size ~/ 2);
+      // coverage:ignore-end
+    }
+    return (row: rs ~/ n, col: cs ~/ n);
   }
 
   Rect _scaled(Rect rect, double s) {

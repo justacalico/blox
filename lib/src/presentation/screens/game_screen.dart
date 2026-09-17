@@ -99,7 +99,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   _Drag? _drag;
-  ClearAnimation? _clearing;
+  Map<CellPos, int>? _clearCells;
   Set<CellPos> _popCells = const {};
   final List<_Popup> _popups = [];
   bool _paused = false;
@@ -170,6 +170,8 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() => _drag = null);
   }
 
+  void _cancelDrag() => setState(() => _drag = null);
+
   /// Where the dragged piece's top-left would sit on the board, in
   /// board-local pixels.
   Offset _pieceTopLeftOnBoard() {
@@ -206,11 +208,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _place(int trayIndex, CellPos anchor) {
     final placedColor = _engine.tray[trayIndex]!.colorIndex;
     final boardBefore = _engine.board.copy();
-    final result = _engine.place(trayIndex, anchor.row, anchor.col);
-    if (result == null) {
-      setState(() {});
-      return;
-    }
+    final result = _engine.place(trayIndex, anchor.row, anchor.col)!;
 
     _haptics.tap();
     _sound.click();
@@ -234,10 +232,23 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
     if (result.gameOver) {
       _haptics.gameOver();
-      Timer(BloxMotion.clear + const Duration(milliseconds: 250), () {
-        if (mounted) setState(() => _gameOverShown = true);
-      });
+      _scheduleGameOver();
     }
+  }
+
+  Timer? _gameOverTimer;
+
+  /// Shows the game-over panel after the clear animation has played out.
+  /// Also called from restart/play-again handlers, since a fresh deal can
+  /// land on a board with no moves.
+  void _scheduleGameOver() {
+    _gameOverTimer?.cancel();
+    _gameOverTimer = Timer(
+      BloxMotion.clear + const Duration(milliseconds: 250),
+      () {
+        if (mounted) setState(() => _gameOverShown = true);
+      },
+    );
   }
 
   void _spawnClearEffects(
@@ -254,11 +265,9 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       for (final c in result.clearedCells)
         c: before.colorAt(c.row, c.col) ?? placedColor,
     };
-    setState(() {
-      _clearing = ClearAnimation(cells: cells, progress: 0);
-    });
+    setState(() => _clearCells = cells);
     _clearController.forward(from: 0).whenComplete(() {
-      if (mounted) setState(() => _clearing = null);
+      if (mounted) setState(() => _clearCells = null);
     });
 
     // Particles from a handful of cleared cells.
@@ -370,7 +379,12 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                             _drag!.preview.cols,
                                       )
                                     : null,
-                                clearing: _clearing,
+                                clearing: _clearCells == null
+                                    ? null
+                                    : ClearAnimation(
+                                        cells: _clearCells!,
+                                        progress: _clearController.value,
+                                      ),
                                 popCells: _popCells,
                                 popProgress: _popController.value,
                               ),
@@ -387,6 +401,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               onDragStart: _onDragStart,
                               onDragUpdate: _onDragUpdate,
                               onDragEnd: _onDragEnd,
+                              onDragCancel: _cancelDrag,
                             ),
                           ),
                           Padding(
@@ -478,6 +493,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 _paused = false;
                 _gameOverShown = false;
               });
+              if (_engine.isGameOver) _scheduleGameOver();
             },
           ),
           const SizedBox(height: 12),
@@ -518,6 +534,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             onPressed: () {
               _engine.newGame();
               setState(() => _gameOverShown = false);
+              if (_engine.isGameOver) _scheduleGameOver();
             },
           ),
           const SizedBox(height: 12),
@@ -534,6 +551,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _gameOverTimer?.cancel();
     _clearController.dispose();
     _popController.dispose();
     super.dispose();

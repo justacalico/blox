@@ -19,6 +19,18 @@ final class _MaxRandom implements Random {
   bool nextBool() => true;
 }
 
+/// Mirrors the generator's bone check: true when [shape] has a placement
+/// that completes a line on [board].
+bool canClear(Board board, PieceShape shape) {
+  for (var r = 0; r <= board.size - shape.height; r++) {
+    for (var c = 0; c <= board.size - shape.width; c++) {
+      final p = board.previewClears(shape, r, c);
+      if (p.rows.isNotEmpty || p.cols.isNotEmpty) return true;
+    }
+  }
+  return false;
+}
+
 void main() {
   group('PieceGenerator', () {
     test('is deterministic for a given seed', () {
@@ -90,6 +102,98 @@ void main() {
         }
       }
       final hand = PieceGenerator(random: Random(1)).deal(b);
+      expect(hand.length, 3);
+    });
+
+    test('assist 1 guarantees a piece that completes a line', () {
+      // Row 3 misses a single cell; a handful of shapes can finish it.
+      final b = Board();
+      for (var c = 0; c < 7; c++) {
+        b.place(dot(), 3, c, 0);
+      }
+      for (var seed = 0; seed < 40; seed++) {
+        final hand = PieceGenerator(random: Random(seed)).deal(b, assist: 1);
+        expect(
+          hand.any((p) => canClear(b, p.shape)),
+          isTrue,
+          reason: 'seed $seed dealt a hand with no bone',
+        );
+      }
+    });
+
+    test('assist 1 injects a bone when the drawn hand lacks one', () {
+      // _MaxRandom always draws the catalog's last shape, which cannot clear
+      // here, so the generator must swap one slot for a bone.
+      final b = Board();
+      for (var c = 0; c < 7; c++) {
+        b.place(dot(), 3, c, 0);
+      }
+      final hand = PieceGenerator(random: _MaxRandom()).deal(b, assist: 1);
+      expect(hand.any((p) => canClear(b, p.shape)), isTrue);
+    });
+
+    test('assist 1 leaves the hand alone when it already has a bone', () {
+      // Everything filled except a plus-shaped hole: the catalog's last
+      // shape (plus) fits and clears both lines, so no injection happens.
+      const hole = {
+        (row: 3, col: 2),
+        (row: 3, col: 3),
+        (row: 3, col: 4),
+        (row: 2, col: 3),
+        (row: 4, col: 3),
+      };
+      final b = Board();
+      for (var r = 0; r < 8; r++) {
+        for (var c = 0; c < 8; c++) {
+          if (!hole.contains((row: r, col: c))) b.fill(r, c, 0);
+        }
+      }
+      final lastId = PieceCatalog.all.last.id;
+      final hand = PieceGenerator(random: _MaxRandom()).deal(b, assist: 1);
+      expect(hand.every((p) => p.shape.id == lastId), isTrue);
+      expect(canClear(b, hand.first.shape), isTrue);
+    });
+
+    test('assist 1 on a boneless board still deals a playable hand', () {
+      // Checkerboard: no single placement completes a line.
+      final b = Board();
+      for (var r = 0; r < 8; r++) {
+        for (var c = 0; c < 8; c++) {
+          if ((r + c) % 2 == 0) b.fill(r, c, 0);
+        }
+      }
+      final hand = PieceGenerator(random: Random(3)).deal(b, assist: 1);
+      expect(hand.any((p) => b.hasAnyPlacement(p.shape)), isTrue);
+    });
+
+    test('assist 2 deals only pieces that fit', () {
+      // Checkerboard holes are never adjacent, so only the dot fits.
+      final b = Board();
+      for (var r = 0; r < 8; r++) {
+        for (var c = 0; c < 8; c++) {
+          if ((r + c) % 2 == 0) b.fill(r, c, 0);
+        }
+      }
+      for (var seed = 0; seed < 30; seed++) {
+        final hand = PieceGenerator(random: Random(seed)).deal(b, assist: 2);
+        for (final p in hand) {
+          expect(
+            b.hasAnyPlacement(p.shape),
+            isTrue,
+            reason: 'seed $seed dealt a dead piece',
+          );
+        }
+      }
+    });
+
+    test('assist 2 on a full board still deals three pieces', () {
+      final b = Board();
+      for (var r = 0; r < 8; r++) {
+        for (var c = 0; c < 8; c++) {
+          b.fill(r, c, 0);
+        }
+      }
+      final hand = PieceGenerator(random: Random(1)).deal(b, assist: 2);
       expect(hand.length, 3);
     });
   });

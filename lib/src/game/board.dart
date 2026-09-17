@@ -97,6 +97,20 @@ final class Board {
     return cleared;
   }
 
+  /// Which rows and columns a legal placement would complete, without
+  /// mutating the board. Returns empty lists when the placement is illegal.
+  ({List<int> rows, List<int> cols}) previewClears(
+    PieceShape shape,
+    int row,
+    int col,
+  ) {
+    if (!canPlace(shape, row, col)) {
+      return (rows: const [], cols: const []);
+    }
+    final copy = this.copy()..place(shape, row, col, 0);
+    return (rows: copy.fullRows(), cols: copy.fullColumns());
+  }
+
   /// True when [shape] can be placed anywhere on the board.
   bool hasAnyPlacement(PieceShape shape) {
     for (var r = 0; r <= size - shape.height; r++) {

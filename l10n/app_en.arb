@@ -60,6 +60,10 @@
   "@haptics": {
     "description": "Toggle label for vibration feedback."
   },
+  "sound": "Sound",
+  "@sound": {
+    "description": "Toggle label for sound effects."
+  },
   "dragHint": "Drag a piece onto the board",
   "@dragHint": {
     "description": "One line tutorial hint under the piece tray."

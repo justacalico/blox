@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .devinorium-attachments/
+
+# Golden test failure diffs
+test/goldens/failures/

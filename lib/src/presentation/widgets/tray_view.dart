@@ -18,6 +18,7 @@ class TrayView extends StatelessWidget {
     required this.onDragStart,
     required this.onDragUpdate,
     required this.onDragEnd,
+    required this.onDragCancel,
     this.pieceKeys,
     this.cellPx = 20,
   });
@@ -34,6 +35,7 @@ class TrayView extends StatelessWidget {
   final void Function(int index, Offset globalPosition) onDragStart;
   final void Function(Offset globalPosition) onDragUpdate;
   final void Function(Offset globalPosition) onDragEnd;
+  final VoidCallback onDragCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class TrayView extends StatelessWidget {
             onDragStart: (pos) => onDragStart(i, pos),
             onDragUpdate: onDragUpdate,
             onDragEnd: onDragEnd,
+            onDragCancel: onDragCancel,
           ),
       ],
     );
@@ -68,6 +71,7 @@ class _TraySlot extends StatelessWidget {
     required this.onDragStart,
     required this.onDragUpdate,
     required this.onDragEnd,
+    required this.onDragCancel,
   });
 
   final GlobalKey? pieceKey;
@@ -78,6 +82,7 @@ class _TraySlot extends StatelessWidget {
   final void Function(Offset globalPosition) onDragStart;
   final void Function(Offset globalPosition) onDragUpdate;
   final void Function(Offset globalPosition) onDragEnd;
+  final VoidCallback onDragCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +93,7 @@ class _TraySlot extends StatelessWidget {
           : (e) => onDragStart(e.position),
       onPointerMove: p == null ? null : (e) => onDragUpdate(e.position),
       onPointerUp: p == null ? null : (e) => onDragEnd(e.position),
-      onPointerCancel: p == null ? null : (e) => onDragEnd(e.position),
+      onPointerCancel: p == null ? null : (_) => onDragCancel(),
       child: SizedBox(
         width: BloxMetrics.traySlot,
         height: BloxMetrics.traySlot,

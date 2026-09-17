@@ -36,14 +36,13 @@ final class PieceGenerator implements PieceDealer {
       total += _weightOf(s.size);
     }
     var roll = _random.nextInt(total);
-    for (final s in catalog) {
+    for (final s in catalog.sublist(0, catalog.length - 1)) {
       roll -= _weightOf(s.size);
       if (roll < 0) {
         return Piece(s, _random.nextInt(kBlockColorCount));
       }
     }
-    final last = catalog.last;
-    return Piece(last, _random.nextInt(kBlockColorCount));
+    return Piece(catalog.last, _random.nextInt(kBlockColorCount));
   }
 
   /// Returns a fresh hand of three pieces for [board].

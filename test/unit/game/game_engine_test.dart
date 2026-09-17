@@ -55,6 +55,13 @@ Piece square2([int color = 0]) => Piece(
     );
 
 void main() {
+  test('default constructor deals a playable opening hand', () {
+    final e = GameEngine();
+    expect(e.tray.length, 3);
+    expect(e.tray.any((p) => p != null), isTrue);
+    expect(e.isGameOver, isFalse);
+  });
+
   group('GameEngine', () {
     test('starts with a full tray and zero score', () {
       final e = GameEngine(

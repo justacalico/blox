@@ -22,14 +22,8 @@ final class SettingsStore extends ChangeNotifier implements ScoreStore {
   static Future<SettingsStore> loadPersisted() async {
     final prefs = await SharedPreferences.getInstance();
     void persist(String key, Object value) {
-      switch (value) {
-        case final bool b:
-          prefs.setBool(key, b);
-        case final int i:
-          prefs.setInt(key, i);
-        default:
-          break;
-      }
+      if (value is bool) prefs.setBool(key, value);
+      if (value is int) prefs.setInt(key, value);
     }
 
     return SettingsStore._(

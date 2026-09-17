@@ -14,9 +14,20 @@ final class ScriptedDealer implements PieceDealer {
   var _next = 0;
 
   @override
-  List<Piece> deal(Board board) {
+  List<Piece> deal(Board board, {int assist = 0}) {
     if (_next >= hands.length) return const [];
     return hands[_next++];
+  }
+}
+
+/// Records the assist level passed to each deal and always hands out dots.
+final class _RecordingDealer implements PieceDealer {
+  final assists = <int>[];
+
+  @override
+  List<Piece> deal(Board board, {int assist = 0}) {
+    assists.add(assist);
+    return [dot(), dot(), dot()];
   }
 }
 
@@ -315,6 +326,56 @@ void main() {
       expect(e.canPlaceAt(1, 0, 0), isTrue);
       e.place(1, 0, 0);
       expect(e.canPlaceAt(2, 0, 0), isFalse);
+    });
+
+    test('assistLevel rises on a clear-less streak and resets on a clear',
+        () {
+      final dealer = _RecordingDealer();
+      final e = GameEngine(dealer: dealer);
+      expect(dealer.assists, [0], reason: 'fresh board gets no help');
+
+      var slot = 0;
+      void placeDot(int r, int c) {
+        e.place(slot, r, c);
+        slot = (slot + 1) % 3;
+      }
+
+      // Nine dots in rows 1-3: no line ever completes.
+      for (var r = 1; r <= 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          placeDot(r, c);
+        }
+      }
+      expect(e.assistLevel, 2, reason: 'nine placements without a clear');
+      // Refills after placements 3, 6 and 9 saw streaks 3, 6 and 9.
+      expect(dealer.assists, [0, 0, 1, 2]);
+
+      // Complete row 0 to reset the streak; two more dots trigger a refill.
+      for (var c = 1; c < 8; c++) {
+        e.board.fill(0, c, 1);
+      }
+      placeDot(0, 0);
+      expect(e.assistLevel, 0);
+      placeDot(4, 0);
+      placeDot(4, 1);
+      expect(dealer.assists, [0, 0, 1, 2, 0]);
+    });
+
+    test('assistLevel follows board fill even without a streak', () {
+      final e = GameEngine(
+        dealer: ScriptedDealer([
+          [dot(), dot(), dot()],
+        ]),
+      );
+      expect(e.assistLevel, 0);
+      for (var i = 0; i < 33; i++) {
+        e.board.fill(i ~/ 8, i % 8, 0);
+      }
+      expect(e.assistLevel, 1, reason: 'half full');
+      for (var i = 33; i < 45; i++) {
+        e.board.fill(i ~/ 8, i % 8, 0);
+      }
+      expect(e.assistLevel, 2, reason: 'seventy percent full');
     });
 
     test('notifies listeners on place and newGame', () {

@@ -84,6 +84,8 @@ final class GameEngine extends ChangeNotifier {
   int combo = 0;
   bool isGameOver = false;
 
+  int _placementsSinceClear = 0;
+
   /// The current hand. Empty slots are null.
   List<Piece?> get tray => List.unmodifiable(_tray);
 
@@ -138,6 +140,7 @@ final class GameEngine extends ChangeNotifier {
     var clearPoints = 0;
     if (rows.isNotEmpty || cols.isNotEmpty) {
       combo += 1;
+      _placementsSinceClear = 0;
       clearedCells = board.clear(rows, cols);
       clearPoints = Scoring.forClear(
         clearedCells: clearedCells.length,
@@ -146,6 +149,7 @@ final class GameEngine extends ChangeNotifier {
       );
     } else {
       combo = 0;
+      _placementsSinceClear += 1;
     }
 
     score += placementPoints + clearPoints;
@@ -179,11 +183,22 @@ final class GameEngine extends ChangeNotifier {
     );
   }
 
+  /// How much help the dealer should give on the next hand, 0-2. Rises when
+  /// the player goes several placements without a clear or the board fills
+  /// up; the generator answers with pieces that fit or finish a line.
+  int get assistLevel {
+    final fill = board.filledCount / (board.size * board.size);
+    if (_placementsSinceClear >= 8 || fill >= 0.7) return 2;
+    if (_placementsSinceClear >= 4 || fill >= 0.5) return 1;
+    return 0;
+  }
+
   /// Starts a fresh run, keeping the recorded best.
   void newGame() {
     _clearBoard();
     score = 0;
     combo = 0;
+    _placementsSinceClear = 0;
     isGameOver = false;
     _refillTray();
     _updateGameOver();
@@ -198,7 +213,7 @@ final class GameEngine extends ChangeNotifier {
   }
 
   void _refillTray() {
-    final hand = _dealer.deal(board);
+    final hand = _dealer.deal(board, assist: assistLevel);
     for (var i = 0; i < traySize; i++) {
       _tray[i] = i < hand.length ? hand[i] : null;
     }

@@ -75,6 +75,29 @@ void main() {
     expect(engine.score, greaterThan(0));
   });
 
+  testWidgets('grabs a piece from the padded edge of its slot', (tester) async {
+    final engine = scriptedEngine([
+      [dot(3), dot(1), dot(2)],
+    ]);
+    await pumpGame(tester, engine);
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final zone = tester.getRect(slot);
+    // Far left of the centered 96px piece box, but inside the slot's share
+    // of the tray row.
+    final gesture =
+        await tester.startGesture(Offset(zone.left + 8, zone.center.dy));
+    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(engine.tray[0], isNull, reason: 'edge grab still dragged slot 0');
+    expect(engine.score, greaterThan(0));
+  });
+
   testWidgets('clearing a line shows a score popup', (tester) async {
     final engine = scriptedEngine([
       [dot(), dot(), dot()],

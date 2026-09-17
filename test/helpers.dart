@@ -36,7 +36,7 @@ final class ScriptedDealer implements PieceDealer {
   var _next = 0;
 
   @override
-  List<Piece> deal(Board board) =>
+  List<Piece> deal(Board board, {int assist = 0}) =>
       _next >= hands.length ? const [] : hands[_next++];
 }
 

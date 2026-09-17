@@ -32,7 +32,7 @@ variables:
 
 pages:
   stage: build
-  image: ghcr.io/cirruslabs/flutter:stable
+  image: ghcr.io/cirruslabs/flutter:3.44.6
   variables:
     GIT_DEPTH: "1"
   script:
@@ -48,7 +48,7 @@ pages:
 
 test:
   stage: build
-  image: ghcr.io/cirruslabs/flutter:stable
+  image: ghcr.io/cirruslabs/flutter:3.44.6
   variables:
     GIT_DEPTH: "1"
   script:

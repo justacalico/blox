@@ -87,29 +87,37 @@ class _TraySlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = piece;
-    return Listener(
-      onPointerDown: p == null
-          ? null
-          : (e) => onDragStart(e.position),
-      onPointerMove: p == null ? null : (e) => onDragUpdate(e.position),
-      onPointerUp: p == null ? null : (e) => onDragEnd(e.position),
-      onPointerCancel: p == null ? null : (_) => onDragCancel(),
-      child: SizedBox(
-        width: BloxMetrics.traySlot,
-        height: BloxMetrics.traySlot,
+    // The listener fills the whole slot share of the row, far wider than the
+    // piece itself, so grabbing a piece works with fat fingers and sloppy
+    // mouse presses. Opaque hit testing makes the padding count too.
+    return Expanded(
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: p == null
+            ? null
+            : (e) => onDragStart(e.position),
+        onPointerMove: p == null ? null : (e) => onDragUpdate(e.position),
+        onPointerUp: p == null ? null : (e) => onDragEnd(e.position),
+        onPointerCancel: p == null ? null : (_) => onDragCancel(),
         child: Center(
-          child: p == null
-              ? const SizedBox.shrink()
-              : AnimatedOpacity(
-                  duration: BloxMotion.snap,
-                  opacity: hidden ? 0.15 : 1,
-                  child: PieceView(
-                    key: pieceKey,
-                    piece: p,
-                    cellPx: cellPx,
-                    dimmed: !placeable,
-                  ),
-                ),
+          child: SizedBox(
+            width: BloxMetrics.traySlot,
+            height: BloxMetrics.traySlot,
+            child: Center(
+              child: p == null
+                  ? const SizedBox.shrink()
+                  : AnimatedOpacity(
+                      duration: BloxMotion.snap,
+                      opacity: hidden ? 0.15 : 1,
+                      child: PieceView(
+                        key: pieceKey,
+                        piece: p,
+                        cellPx: cellPx,
+                        dimmed: !placeable,
+                      ),
+                    ),
+            ),
+          ),
         ),
       ),
     );

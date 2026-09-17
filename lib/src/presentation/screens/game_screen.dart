@@ -16,6 +16,7 @@ import 'package:blox/src/presentation/widgets/piece_view.dart';
 import 'package:blox/src/presentation/widgets/score_popup.dart';
 import 'package:blox/src/presentation/widgets/tray_view.dart';
 import 'package:blox/src/settings.dart';
+import 'package:blox/src/sound.dart';
 import 'package:blox/src/theme/blox_theme.dart';
 import 'package:flutter/material.dart' show Scaffold;
 import 'package:flutter/widgets.dart';
@@ -67,6 +68,8 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       widget.engine ?? GameEngine(scoreStore: widget.settings);
   late final BloxHaptics _haptics =
       BloxHaptics(enabled: widget.settings.haptics);
+  late final BloxSound _sound =
+      BloxSound(enabled: widget.settings.sound);
   late final Random _random = widget.random ?? Random();
 
   final _boardKey = GlobalKey();
@@ -210,6 +213,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     _haptics.tap();
+    _sound.click();
     setState(() {
       _popCells = result.placedCells.toSet();
     });

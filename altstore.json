@@ -1,0 +1,50 @@
+{
+  "name": "Blox",
+  "identifier": "gitlab.httpanimations.blox.source",
+  "sourceURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/altstore.json",
+  "subtitle": "Candy-bright block puzzle",
+  "description": "A fast, tactile block puzzle. Drag glossy pieces onto the grid, clear rows and columns, and chain combos to chase your best score.",
+  "iconURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/icon.png",
+  "headerURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/icon.png",
+  "website": "https://gitlab.com/HttpAnimations/blox",
+  "tintColor": "2A2E51",
+  "featuredApps": [
+    "gitlab.httpanimations.blox"
+  ],
+  "apps": [
+    {
+      "name": "Blox",
+      "bundleIdentifier": "gitlab.httpanimations.blox",
+      "developerName": "HttpAnimations",
+      "subtitle": "Candy-bright block puzzle",
+      "localizedDescription": "Blox is a block puzzle game built with Flutter. Drag pieces onto an 8x8 board, complete rows and columns to clear them, and chain clears into combos for big scores. Includes haptics, sound, best-score persistence and full English/Chinese localization.",
+      "iconURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/icon.png",
+      "tintColor": "2A2E51",
+      "category": "games",
+      "screenshots": {
+        "iphone": [
+          {
+            "imageURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/menu.png",
+            "width": 420,
+            "height": 760
+          },
+          {
+            "imageURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/gameplay.png",
+            "width": 420,
+            "height": 760
+          },
+          {
+            "imageURL": "https://gitlab.com/HttpAnimations/blox/-/raw/main/docs/screenshots/drag_preview.png",
+            "width": 420,
+            "height": 760
+          }
+        ]
+      },
+      "versions": [],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ]
+}

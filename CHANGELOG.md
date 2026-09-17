@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.2.0 - 2026-09-17
+#### Features
+- 局势紧张时优先发能消行的牌 - (5c77ad8) - HttpAnimations
+- 加大托盘区块的触控热区 - (d6f7462) - HttpAnimations
+
+- - -
+
 ## v1.1.0 - 2026-09-17
 #### Features
 - 添加 GitLab/GitHub 发布流水线、AltStore 源和签名配置 - (77ca8a2) - HttpAnimations

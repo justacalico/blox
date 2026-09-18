@@ -211,6 +211,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{points}'**
   String pointsEarned(int points);
+
+  /// Toggle that unlocks the cheat menu, and the cheat menu's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheats'**
+  String get cheats;
+
+  /// Cheat button that grants free points.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} score'**
+  String cheatScore(int points);
+
+  /// Cheat button that empties the whole board.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear board'**
+  String get cheatWipe;
+
+  /// Cheat button that deals a fresh hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Reroll pieces'**
+  String get cheatReroll;
+
+  /// Cheat button that deals only pieces that fit on the board.
+  ///
+  /// In en, this message translates to:
+  /// **'All fitting'**
+  String get cheatFitting;
+
+  /// Cheat button that fills a row except one cell so the next piece clears it.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime a line'**
+  String get cheatPrime;
+
+  /// Cheat button that replaces dead pieces with dots.
+  ///
+  /// In en, this message translates to:
+  /// **'Revive'**
+  String get cheatRevive;
+
+  /// Cheat toggle that prevents game over.
+  ///
+  /// In en, this message translates to:
+  /// **'God mode'**
+  String get cheatGodMode;
 }
 
 class _AppLocalizationsDelegate

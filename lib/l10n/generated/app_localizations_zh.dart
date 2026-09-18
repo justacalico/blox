@@ -68,4 +68,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String pointsEarned(int points) {
     return '+$points';
   }
+
+  @override
+  String get cheats => '作弊';
+
+  @override
+  String cheatScore(int points) {
+    return '+$points 分';
+  }
+
+  @override
+  String get cheatWipe => '清空棋盘';
+
+  @override
+  String get cheatReroll => '换手牌';
+
+  @override
+  String get cheatFitting => '全部可放';
+
+  @override
+  String get cheatPrime => '凑满一行';
+
+  @override
+  String get cheatRevive => '复活';
+
+  @override
+  String get cheatGodMode => '无敌模式';
 }

@@ -95,15 +95,20 @@ class SettingsToggles extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _ToggleRow(
+            ToggleRow(
               label: l10n.haptics,
               value: settings.haptics,
               onChanged: (v) => settings.haptics = v,
             ),
-            _ToggleRow(
+            ToggleRow(
               label: l10n.sound,
               value: settings.sound,
               onChanged: (v) => settings.sound = v,
+            ),
+            ToggleRow(
+              label: l10n.cheats,
+              value: settings.cheats,
+              onChanged: (v) => settings.cheats = v,
             ),
           ],
         );
@@ -112,8 +117,11 @@ class SettingsToggles extends StatelessWidget {
   }
 }
 
-class _ToggleRow extends StatelessWidget {
-  const _ToggleRow({
+/// A label next to a pill switch. Used by [SettingsToggles] and the cheat
+/// menu.
+class ToggleRow extends StatelessWidget {
+  const ToggleRow({
+    super.key,
     required this.label,
     required this.value,
     required this.onChanged,

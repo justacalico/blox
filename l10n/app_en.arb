@@ -85,5 +85,42 @@
         "type": "int"
       }
     }
+  },
+  "cheats": "Cheats",
+  "@cheats": {
+    "description": "Toggle that unlocks the cheat menu, and the cheat menu's title."
+  },
+  "cheatScore": "+{points} score",
+  "@cheatScore": {
+    "description": "Cheat button that grants free points.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "cheatWipe": "Clear board",
+  "@cheatWipe": {
+    "description": "Cheat button that empties the whole board."
+  },
+  "cheatReroll": "Reroll pieces",
+  "@cheatReroll": {
+    "description": "Cheat button that deals a fresh hand."
+  },
+  "cheatFitting": "All fitting",
+  "@cheatFitting": {
+    "description": "Cheat button that deals only pieces that fit on the board."
+  },
+  "cheatPrime": "Prime a line",
+  "@cheatPrime": {
+    "description": "Cheat button that fills a row except one cell so the next piece clears it."
+  },
+  "cheatRevive": "Revive",
+  "@cheatRevive": {
+    "description": "Cheat button that replaces dead pieces with dots."
+  },
+  "cheatGodMode": "God mode",
+  "@cheatGodMode": {
+    "description": "Cheat toggle that prevents game over."
   }
 }

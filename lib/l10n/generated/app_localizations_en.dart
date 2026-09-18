@@ -68,4 +68,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String pointsEarned(int points) {
     return '+$points';
   }
+
+  @override
+  String get cheats => 'Cheats';
+
+  @override
+  String cheatScore(int points) {
+    return '+$points score';
+  }
+
+  @override
+  String get cheatWipe => 'Clear board';
+
+  @override
+  String get cheatReroll => 'Reroll pieces';
+
+  @override
+  String get cheatFitting => 'All fitting';
+
+  @override
+  String get cheatPrime => 'Prime a line';
+
+  @override
+  String get cheatRevive => 'Revive';
+
+  @override
+  String get cheatGodMode => 'God mode';
 }

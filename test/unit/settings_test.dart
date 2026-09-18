@@ -10,6 +10,7 @@ void main() {
     final s = await SettingsStore.loadPersisted();
     expect(s.haptics, isTrue);
     expect(s.sound, isTrue);
+    expect(s.cheats, isFalse);
     expect(s.load(), 0);
   });
 
@@ -17,11 +18,13 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'haptics_enabled': false,
       'sound_enabled': false,
+      'cheats_enabled': true,
       'best_score': 42,
     });
     final s = await SettingsStore.loadPersisted();
     expect(s.haptics, isFalse);
     expect(s.sound, isFalse);
+    expect(s.cheats, isTrue);
     expect(s.load(), 42);
   });
 
@@ -30,10 +33,12 @@ void main() {
     final s = await SettingsStore.loadPersisted();
     s.haptics = false;
     s.sound = false;
+    s.cheats = true;
     s.save(77);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('haptics_enabled'), isFalse);
     expect(prefs.getBool('sound_enabled'), isFalse);
+    expect(prefs.getBool('cheats_enabled'), isTrue);
     expect(prefs.getInt('best_score'), 77);
   });
 
@@ -45,7 +50,9 @@ void main() {
     s.haptics = false;
     s.sound = false;
     s.sound = false;
-    expect(notifications, 2);
+    s.cheats = true;
+    s.cheats = true;
+    expect(notifications, 3);
     expect(s.load(), 5);
   });
 }

@@ -18,5 +18,13 @@
   "sound": "音效",
   "dragHint": "把方块拖到棋盘上",
   "combo": "连击 x{count}",
-  "pointsEarned": "+{points}"
+  "pointsEarned": "+{points}",
+  "cheats": "作弊",
+  "cheatScore": "+{points} 分",
+  "cheatWipe": "清空棋盘",
+  "cheatReroll": "换手牌",
+  "cheatFitting": "全部可放",
+  "cheatPrime": "凑满一行",
+  "cheatRevive": "复活",
+  "cheatGodMode": "无敌模式"
 }

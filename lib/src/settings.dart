@@ -7,14 +7,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Backed by [SharedPreferences] in the app and by an in-memory map in
 /// tests via [SettingsStore.memory].
 final class SettingsStore extends ChangeNotifier implements ScoreStore {
-  SettingsStore._(this._haptics, this._sound, this._best, this._persist);
+  SettingsStore._(
+    this._haptics,
+    this._sound,
+    this._cheats,
+    this._best,
+    this._persist,
+  );
 
   static const _hapticsKey = 'haptics_enabled';
   static const _soundKey = 'sound_enabled';
+  static const _cheatsKey = 'cheats_enabled';
   static const _bestKey = 'best_score';
 
   bool _haptics;
   bool _sound;
+  bool _cheats;
   int _best;
   final void Function(String key, Object value) _persist;
 
@@ -29,14 +37,15 @@ final class SettingsStore extends ChangeNotifier implements ScoreStore {
     return SettingsStore._(
       prefs.getBool(_hapticsKey) ?? true,
       prefs.getBool(_soundKey) ?? true,
+      prefs.getBool(_cheatsKey) ?? false,
       prefs.getInt(_bestKey) ?? 0,
       persist,
     );
   }
 
   /// Volatile store for tests.
-  factory SettingsStore.memory({int best = 0}) {
-    return SettingsStore._(true, true, best, (_, _) {});
+  factory SettingsStore.memory({int best = 0, bool cheats = false}) {
+    return SettingsStore._(true, true, cheats, best, (_, _) {});
   }
 
   bool get haptics => _haptics;
@@ -52,6 +61,15 @@ final class SettingsStore extends ChangeNotifier implements ScoreStore {
     if (_sound == value) return;
     _sound = value;
     _persist(_soundKey, value);
+    notifyListeners();
+  }
+
+  /// Whether the pause panel exposes the cheat menu.
+  bool get cheats => _cheats;
+  set cheats(bool value) {
+    if (_cheats == value) return;
+    _cheats = value;
+    _persist(_cheatsKey, value);
     notifyListeners();
   }
 

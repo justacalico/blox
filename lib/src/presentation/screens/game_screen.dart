@@ -9,6 +9,7 @@ import 'package:blox/src/game/piece_shape.dart';
 import 'package:blox/src/haptics.dart';
 import 'package:blox/src/presentation/board_layout.dart';
 import 'package:blox/src/presentation/widgets/board_view.dart';
+import 'package:blox/src/presentation/widgets/cheat_menu.dart';
 import 'package:blox/src/presentation/widgets/hud.dart';
 import 'package:blox/src/presentation/widgets/overlays.dart';
 import 'package:blox/src/presentation/widgets/particle_layer.dart';
@@ -471,39 +472,51 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget _buildPauseOverlay(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return OverlayPanel(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(l10n.pause, style: BloxText.display(34)),
-          const SizedBox(height: 20),
-          SettingsToggles(settings: widget.settings),
-          const SizedBox(height: 20),
-          BloxRowButton(
-            label: l10n.resume,
-            color: BloxColors.ctaTeal,
-            deepColor: BloxColors.ctaTealDeep,
-            onPressed: () => setState(() => _paused = false),
-          ),
-          const SizedBox(height: 12),
-          BloxRowButton(
-            label: l10n.restart,
-            onPressed: () {
-              _engine.newGame();
-              setState(() {
-                _paused = false;
-                _gameOverShown = false;
-              });
-              if (_engine.isGameOver) _scheduleGameOver();
-            },
-          ),
-          const SizedBox(height: 12),
-          BloxRowButton(
-            label: l10n.backToMenu,
-            color: BloxColors.ctaBlue,
-            deepColor: BloxColors.ctaBlueDeep,
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.pause, style: BloxText.display(34)),
+            const SizedBox(height: 20),
+            SettingsToggles(settings: widget.settings),
+            AnimatedBuilder(
+              animation: widget.settings,
+              builder: (context, _) {
+                if (!widget.settings.cheats) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: CheatMenu(engine: _engine, random: _random),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            BloxRowButton(
+              label: l10n.resume,
+              color: BloxColors.ctaTeal,
+              deepColor: BloxColors.ctaTealDeep,
+              onPressed: () => setState(() => _paused = false),
+            ),
+            const SizedBox(height: 12),
+            BloxRowButton(
+              label: l10n.restart,
+              onPressed: () {
+                _engine.newGame();
+                setState(() {
+                  _paused = false;
+                  _gameOverShown = false;
+                });
+                if (_engine.isGameOver) _scheduleGameOver();
+              },
+            ),
+            const SizedBox(height: 12),
+            BloxRowButton(
+              label: l10n.backToMenu,
+              color: BloxColors.ctaBlue,
+              deepColor: BloxColors.ctaBlueDeep,
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
+          ],
+        ),
       ),
     );
   }

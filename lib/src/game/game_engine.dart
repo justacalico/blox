@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:blox/src/game/board.dart';
 import 'package:blox/src/game/piece.dart';
+import 'package:blox/src/game/piece_catalog.dart';
 import 'package:blox/src/game/piece_generator.dart';
 import 'package:blox/src/game/piece_shape.dart';
 import 'package:blox/src/game/score_store.dart';
@@ -227,8 +228,108 @@ final class GameEngine extends ChangeNotifier {
   }
 
   void _updateGameOver() {
-    isGameOver = !_tray.any(
-      (p) => p != null && board.hasAnyPlacement(p.shape),
-    );
+    isGameOver = !_neverGameOver &&
+        !_tray.any(
+          (p) => p != null && board.hasAnyPlacement(p.shape),
+        );
+  }
+
+  // --- cheats ---------------------------------------------------------------
+
+  bool _neverGameOver = false;
+
+  /// Cheat: while set, the run can never end. The pause menu's cheat
+  /// section toggles this.
+  bool get neverGameOver => _neverGameOver;
+  set neverGameOver(bool value) {
+    if (_neverGameOver == value) return;
+    _neverGameOver = value;
+    _updateGameOver();
+    notifyListeners();
+  }
+
+  /// Cheat: awards [points] out of thin air and keeps best in sync.
+  void grantScore(int points) {
+    score += points;
+    if (score > best) {
+      best = score;
+      _scoreStore.save(best);
+    }
+    notifyListeners();
+  }
+
+  /// Cheat: empties every cell on the board.
+  void wipeBoard() {
+    _clearBoard();
+    _updateGameOver();
+    notifyListeners();
+  }
+
+  /// Cheat: throws out the current hand and deals a fresh one.
+  void redealTray() {
+    _refillTray();
+    _updateGameOver();
+    notifyListeners();
+  }
+
+  /// Cheat: fills every tray slot with a piece that fits the board right
+  /// now. When nothing fits at all the tray is left empty, which ends the
+  /// run unless [neverGameOver] is on.
+  void dealFittingTray({Random? random}) {
+    final rng = random ?? Random();
+    final fitting = PieceCatalog.all.where(board.hasAnyPlacement).toList();
+    for (var i = 0; i < traySize; i++) {
+      _tray[i] = fitting.isEmpty
+          ? null
+          : Piece(
+              fitting[rng.nextInt(fitting.length)],
+              rng.nextInt(kBlockColorCount),
+            );
+    }
+    _updateGameOver();
+    notifyListeners();
+  }
+
+  /// Cheat: swaps every dead tray slot for a single dot, so the player
+  /// almost always has a move left. A completely full board still ends the
+  /// run.
+  void revive() {
+    final dot = PieceCatalog.all.first;
+    for (var i = 0; i < traySize; i++) {
+      final piece = _tray[i];
+      if (piece == null || !board.hasAnyPlacement(piece.shape)) {
+        _tray[i] = Piece(dot, i % kBlockColorCount);
+      }
+    }
+    _updateGameOver();
+    notifyListeners();
+  }
+
+  /// Cheat: fills every empty cell in the row closest to complete, leaving
+  /// a single hole the next dot can finish.
+  void primeClear() {
+    var row = -1;
+    var emptiest = board.size + 1;
+    for (var r = 0; r < board.size; r++) {
+      var missing = 0;
+      for (var c = 0; c < board.size; c++) {
+        if (board.isEmptyAt(r, c)) missing++;
+      }
+      if (missing > 0 && missing < emptiest) {
+        emptiest = missing;
+        row = r;
+      }
+    }
+    if (row < 0) return;
+    var skippedHole = false;
+    for (var c = 0; c < board.size; c++) {
+      if (!board.isEmptyAt(row, c)) continue;
+      if (!skippedHole) {
+        skippedHole = true;
+        continue;
+      }
+      board.fill(row, c, 0);
+    }
+    notifyListeners();
   }
 }

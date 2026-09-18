@@ -331,6 +331,70 @@ void main() {
     expect(settings.haptics, isFalse);
   });
 
+  testWidgets('cheat menu stays hidden until enabled in settings',
+      (tester) async {
+    final settings = SettingsStore.memory();
+    await pumpGame(
+      tester,
+      scriptedEngine([
+        [dot(), dot(), dot()],
+      ]),
+      settings: settings,
+    );
+    await tester.tap(find.bySemanticsLabel('Pause'));
+    await tester.pumpAndSettle();
+    expect(find.text('Clear board'), findsNothing);
+
+    await tester.tap(find.text('Cheats'));
+    await tester.pumpAndSettle();
+    expect(settings.cheats, isTrue);
+    expect(find.text('Clear board'), findsOneWidget);
+  });
+
+  testWidgets('cheat menu buttons drive the engine', (tester) async {
+    final settings = SettingsStore.memory(cheats: true);
+    final engine = scriptedEngine([
+      [square2(1), square2(2), square2(3)],
+      [dot(1), dot(2), dot(3)],
+    ], preset: (b) {
+      b.fill(0, 0, 1);
+      b.fill(0, 1, 1);
+    });
+    await pumpGame(tester, engine, settings: settings);
+    await tester.tap(find.bySemanticsLabel('Pause'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('+500 score'));
+    await tester.pump();
+    expect(engine.score, 500);
+
+    await tester.tap(find.text('Clear board'));
+    await tester.pump();
+    expect(engine.board.isEmpty, isTrue);
+
+    await tester.tap(find.text('Reroll pieces'));
+    await tester.pump();
+    expect(engine.tray[0]!.shape.id, 'dot');
+
+    await tester.tap(find.text('All fitting'));
+    await tester.pump();
+    expect(engine.tray.every((p) => p != null), isTrue);
+    expect(engine.trayPlaceability.every((ok) => ok), isTrue);
+
+    await tester.tap(find.text('Prime a line'));
+    await tester.pump();
+    expect(engine.board.isEmptyAt(0, 0), isTrue);
+    expect(engine.board.isEmptyAt(0, 7), isFalse);
+
+    await tester.tap(find.text('Revive'));
+    await tester.pump();
+    expect(engine.tray.every((p) => p != null), isTrue);
+
+    await tester.tap(find.text('God mode'));
+    await tester.pump();
+    expect(engine.neverGameOver, isTrue);
+  });
+
   testWidgets('random engine smoke', (tester) async {
     await pumpGame(
       tester,

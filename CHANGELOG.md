@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.4.0 - 2026-09-18
+#### Features
+- 新增作弊菜单,设置里加作弊开关 - (b5a898c) - HttpAnimations
+
+- - -
+
 ## v1.3.0 - 2026-09-18
 #### Features
 - 消行得分随本局累计消除方块数递增 - (6a0a422) - HttpAnimations

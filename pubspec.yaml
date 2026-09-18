@@ -2,7 +2,7 @@ name: blox
 description: "A fast, tactile block puzzle game. Fill rows and columns to clear the board."
 publish_to: 'none'
 
-version: 1.3.0+4
+version: 1.4.0+5
 
 environment:
   sdk: ">=3.12.0 <4.0.0"

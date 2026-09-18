@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.3.0 - 2026-09-18
+#### Features
+- 消行得分随本局累计消除方块数递增 - (6a0a422) - HttpAnimations
+
+- - -
+
 ## v1.2.0 - 2026-09-17
 #### Features
 - 局势紧张时优先发能消行的牌 - (5c77ad8) - HttpAnimations

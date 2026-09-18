@@ -14,7 +14,7 @@ A block puzzle game built with Flutter. Drag pieces onto the board, fill rows an
 
 You get three pieces at a time. Drag one onto the 8x8 board and it snaps into place. Fill every cell in a row or column and it clears, freeing space and scoring points. Clearing multiple lines at once (or on consecutive placements) builds a combo multiplier, which is where the real points are. When no tray piece fits anywhere on the board, the run ends and your best score is saved.
 
-Scoring rewards planning: placement gives a few points per block, but multi-line clears and combos are worth far more. Keeping the center open and setting up double clears beats filling the board one piece at a time.
+Scoring rewards planning: placement gives a few points per block, but multi-line clears and combos are worth far more. Clears also ramp up: every full board's worth of blocks you break raises the clear multiplier, so lines late in a run pay more than early ones. Keeping the center open and setting up double clears beats filling the board one piece at a time.
 
 ## Features
 

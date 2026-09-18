@@ -84,6 +84,10 @@ final class GameEngine extends ChangeNotifier {
   int combo = 0;
   bool isGameOver = false;
 
+  /// Cells cleared so far this run. Feeds the clear-value ramp in
+  /// [Scoring.forClear].
+  int totalCleared = 0;
+
   int _placementsSinceClear = 0;
 
   /// The current hand. Empty slots are null.
@@ -146,7 +150,9 @@ final class GameEngine extends ChangeNotifier {
         clearedCells: clearedCells.length,
         lines: rows.length + cols.length,
         combo: combo,
+        totalCleared: totalCleared,
       );
+      totalCleared += clearedCells.length;
     } else {
       combo = 0;
       _placementsSinceClear += 1;
@@ -198,6 +204,7 @@ final class GameEngine extends ChangeNotifier {
     _clearBoard();
     score = 0;
     combo = 0;
+    totalCleared = 0;
     _placementsSinceClear = 0;
     isGameOver = false;
     _refillTray();

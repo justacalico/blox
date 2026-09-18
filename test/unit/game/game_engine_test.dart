@@ -197,6 +197,27 @@ void main() {
       expect(r4.clearPoints, 160);
     });
 
+    test('clears pay more as blocks keep breaking', () {
+      final e = GameEngine(
+        dealer: ScriptedDealer([
+          [line8h(), line8h(), line8h()],
+          [line8h(), line8h(), line8h()],
+          [line8h(), line8h(), line8h()],
+        ]),
+      );
+      // Eight line clears break 64 cells: one full board's worth.
+      PlacementResult? res;
+      for (var i = 0; i < 8; i++) {
+        res = e.place(i % 3, i, 0);
+      }
+      expect(e.totalCleared, 64);
+      expect(res!.clearPoints, 80 * 8, reason: 'ramp stays x1 up to 64');
+      // Ninth clear: 64 broken cells -> x2 ramp on top of combo 9.
+      res = e.place(2, 0, 0)!;
+      expect(res.clearPoints, 80 * 9 * 2);
+      expect(e.totalCleared, 72);
+    });
+
     test('tray refills when empty', () {
       final e = GameEngine(
         dealer: ScriptedDealer([
@@ -295,6 +316,7 @@ void main() {
       e.newGame();
       expect(e.score, 0);
       expect(e.combo, 0);
+      expect(e.totalCleared, 0);
       expect(e.isGameOver, isFalse);
       expect(e.board.isEmpty, isTrue);
       expect(e.best, greaterThan(0));

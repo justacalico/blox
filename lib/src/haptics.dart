@@ -12,6 +12,11 @@ final class BloxHaptics {
     if (enabled) HapticFeedback.lightImpact();
   }
 
+  /// The drag hover moved onto a new cell.
+  void tick() {
+    if (enabled) HapticFeedback.selectionClick();
+  }
+
   /// A line (or more) just cleared.
   void clear() {
     if (enabled) HapticFeedback.mediumImpact();

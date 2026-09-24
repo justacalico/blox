@@ -6,6 +6,7 @@ import 'package:blox/src/presentation/widgets/board_view.dart';
 import 'package:blox/src/presentation/widgets/particle_layer.dart';
 import 'package:blox/src/presentation/widgets/tray_view.dart';
 import 'package:blox/src/settings.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -294,6 +295,67 @@ void main() {
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
     expect(find.text('Resume'), findsOneWidget);
+  });
+
+  testWidgets('vibrates once per cell the drag passes over', (tester) async {
+    var ticks = 0;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'HapticFeedback.vibrate' &&
+            call.arguments == 'HapticFeedbackType.selectionClick') {
+          ticks++;
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await pumpGame(
+      tester,
+      scriptedEngine([
+        [dot(), dot(), dot()],
+      ]),
+    );
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final gesture = await tester.startGesture(tester.getCenter(slot));
+    await tester.pump();
+    expect(ticks, 0, reason: 'the pickup tap is not a cell tick');
+
+    await gesture.moveTo(pointerFor(tester, 3, 3));
+    await tester.pump();
+    expect(ticks, 1);
+
+    // Wiggling inside the same cell stays quiet.
+    await gesture.moveBy(const Offset(2, 0));
+    await tester.pump();
+    expect(ticks, 1);
+
+    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await tester.pump();
+    expect(ticks, 2);
+
+    // Leaving the board is quiet; coming back over a cell ticks again.
+    final board = tester.getRect(find.byType(BoardView));
+    await gesture.moveTo(
+      Offset(board.left - 40, pointerFor(tester, 3, 4).dy),
+    );
+    await tester.pump();
+    expect(ticks, 2);
+
+    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await tester.pump();
+    expect(ticks, 3);
+
+    await gesture.up();
+    await tester.pump();
+    expect(ticks, 3, reason: 'the drop tap is not a cell tick');
   });
 
   testWidgets('cancelling a drag leaves the tray intact', (tester) async {

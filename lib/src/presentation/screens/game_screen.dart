@@ -188,11 +188,20 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return topLeftGlobal - boardOrigin;
   }
 
+  bool _onBoard(CellPos pos) =>
+      pos.row >= 0 &&
+      pos.col >= 0 &&
+      pos.row < _engine.board.size &&
+      pos.col < _engine.board.size;
+
   void _updateAnchor() {
     final d = _drag;
     final boardBox = _boxOf(_boardKey);
     if (d == null || boardBox == null) return;
     final anchor = _layout.anchorFor(_pieceTopLeftOnBoard());
+    if (d.anchor != null && anchor != d.anchor && _onBoard(anchor)) {
+      _haptics.tick();
+    }
     d.anchor = anchor;
     d.anchorValid = _engine.canPlaceAt(d.trayIndex, anchor.row, anchor.col);
     d.preview = d.anchorValid

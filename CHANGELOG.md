@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.5.0 - 2026-09-24
+#### Features
+- 拖动方块经过格子时逐个震动 - (49847ed) - HttpAnimations
+
+- - -
+
 ## v1.4.0 - 2026-09-18
 #### Features
 - 新增作弊菜单,设置里加作弊开关 - (b5a898c) - HttpAnimations

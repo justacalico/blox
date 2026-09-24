@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.6.0 - 2026-09-24
+#### Features
+- 消行时触发大震动 - (b60b64b) - HttpAnimations
+
+- - -
+
 ## v1.5.0 - 2026-09-24
 #### Features
 - 拖动方块经过格子时逐个震动 - (49847ed) - HttpAnimations

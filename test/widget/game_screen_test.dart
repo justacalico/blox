@@ -358,6 +358,47 @@ void main() {
     expect(ticks, 3, reason: 'the drop tap is not a cell tick');
   });
 
+  testWidgets('clearing a line buzzes hard', (tester) async {
+    var buzzes = 0;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'HapticFeedback.vibrate' &&
+            call.arguments == null) {
+          buzzes++;
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    // Best is already out of reach, so the clear buzz is the only one.
+    final engine = scriptedEngine([
+      [dot(), dot(), dot()],
+    ], store: MemoryScoreStore(99999), preset: (b) {
+      for (var c = 0; c < 7; c++) {
+        b.fill(4, c, 2);
+      }
+    });
+    await pumpGame(tester, engine);
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final gesture = await tester.startGesture(tester.getCenter(slot));
+    await gesture.moveTo(pointerFor(tester, 4, 7));
+    await tester.pump();
+    expect(buzzes, 0, reason: 'no buzz before the drop lands');
+
+    await gesture.up();
+    await tester.pump();
+    expect(buzzes, 1);
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('cancelling a drag leaves the tray intact', (tester) async {
     final engine = scriptedEngine([
       [dot(), dot(), dot()],

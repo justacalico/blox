@@ -17,14 +17,17 @@ final class BloxHaptics {
     if (enabled) HapticFeedback.selectionClick();
   }
 
-  /// A line (or more) just cleared.
+  /// A line (or more) just cleared. The long buzz.
   void clear() {
-    if (enabled) HapticFeedback.mediumImpact();
+    if (enabled) HapticFeedback.vibrate();
   }
 
   /// Big moment: multi-line clear, high combo, new best.
   void thud() {
-    if (enabled) HapticFeedback.heavyImpact();
+    if (enabled) {
+      HapticFeedback.heavyImpact();
+      HapticFeedback.vibrate();
+    }
   }
 
   /// The run ended.

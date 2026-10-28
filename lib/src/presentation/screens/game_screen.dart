@@ -8,6 +8,7 @@ import 'package:blox/src/game/piece.dart';
 import 'package:blox/src/game/piece_shape.dart';
 import 'package:blox/src/haptics.dart';
 import 'package:blox/src/presentation/board_layout.dart';
+import 'package:blox/src/presentation/drag_amplifier.dart';
 import 'package:blox/src/presentation/widgets/board_view.dart';
 import 'package:blox/src/presentation/widgets/cheat_menu.dart';
 import 'package:blox/src/presentation/widgets/hud.dart';
@@ -27,16 +28,22 @@ final class _Drag {
   _Drag({
     required this.trayIndex,
     required this.piece,
-    required this.pointer,
+    required Offset pointer,
     required this.grabFraction,
-  });
+  })  : pointer = pointer,
+        _amplifier = DragAmplifier(pointer);
 
   final int trayIndex;
   final Piece piece;
   Offset pointer;
 
+  final DragAmplifier _amplifier;
+
   /// Where inside the piece the finger grabbed it, 0..1 across the piece.
   Offset grabFraction;
+
+  /// The amplified finger position the piece actually follows.
+  Offset get steered => _amplifier.resolve(pointer);
 
   CellPos? anchor;
   bool anchorValid = false;
@@ -181,9 +188,10 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final boardOrigin = _boxOf(_boardKey)!.localToGlobal(Offset.zero);
     final pieceW = d.piece.shape.width * layout.cellPx;
     final pieceH = d.piece.shape.height * layout.cellPx;
+    final steered = d.steered;
     final topLeftGlobal = Offset(
-      d.pointer.dx - d.grabFraction.dx * pieceW,
-      d.pointer.dy - d.grabFraction.dy * pieceH - _lift,
+      steered.dx - d.grabFraction.dx * pieceW,
+      steered.dy - d.grabFraction.dy * pieceH - _lift,
     );
     return topLeftGlobal - boardOrigin;
   }
@@ -457,11 +465,11 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget _buildDraggedPiece() {
     final d = _drag!;
     final layout = _layout;
+    final steered = d.steered;
     final local = _toStack(
       Offset(
-        d.pointer.dx -
-            d.grabFraction.dx * d.piece.shape.width * layout.cellPx,
-        d.pointer.dy -
+        steered.dx - d.grabFraction.dx * d.piece.shape.width * layout.cellPx,
+        steered.dy -
             d.grabFraction.dy * d.piece.shape.height * layout.cellPx -
             _lift,
       ),

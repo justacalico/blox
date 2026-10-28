@@ -69,6 +69,9 @@ abstract final class BloxMotion {
   static const Duration float = Duration(milliseconds: 700);
   static const Curve snapCurve = Curves.easeOutCubic;
   static const Curve popCurve = Curves.easeOutBack;
+
+  /// Pixels the dragged piece travels per pixel of finger travel.
+  static const double dragGain = 3;
 }
 
 abstract final class BloxText {

@@ -6,6 +6,7 @@ import 'package:blox/src/presentation/widgets/board_view.dart';
 import 'package:blox/src/presentation/widgets/particle_layer.dart';
 import 'package:blox/src/presentation/widgets/tray_view.dart';
 import 'package:blox/src/settings.dart';
+import 'package:blox/src/theme/blox_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,15 +22,18 @@ Offset cellCenter(WidgetTester tester, int row, int col) {
 
 /// The position the pointer must reach for a w-by-h piece anchored at
 /// (row, col): the piece floats above the finger by the lift distance.
+/// [from] is where the drag started, since finger travel is amplified
+/// away from the grab point by [BloxMotion.dragGain].
 Offset pointerFor(WidgetTester tester, int row, int col,
-    {int w = 1, int h = 1}) {
+    {required Offset from, int w = 1, int h = 1}) {
   final boardRect = tester.getRect(find.byType(BoardView));
   final layout = BoardLayout(boardPx: boardRect.width);
   final lift = layout.cellPx * 1.7 + 12;
   final target = boardRect.topLeft +
       layout.cellOrigin(row, col) +
       Offset(w * layout.cellPx / 2, h * layout.cellPx / 2);
-  return target + Offset(0, lift);
+  final steered = target + Offset(0, lift);
+  return from + (steered - from) / BloxMotion.dragGain;
 }
 
 Future<GameScreenState> pumpGame(
@@ -67,13 +71,39 @@ void main() {
 
     final trayY = tester.getCenter(find.descendant(of: find.byType(TrayView), matching: find.byType(Listener)).first);
     final gesture = await tester.startGesture(trayY);
-    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await gesture.moveTo(pointerFor(tester, 3, 4, from: trayY));
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();
 
     expect(engine.board.colorAt(3, 4), isNotNull);
     expect(engine.score, greaterThan(0));
+  });
+
+  testWidgets('a short swipe steers a piece across the board', (tester) async {
+    final engine = scriptedEngine([
+      [dot(), dot(), dot()],
+    ]);
+    await pumpGame(tester, engine);
+
+    final slot = find
+        .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
+        .first;
+    final start = tester.getCenter(slot);
+    final target = pointerFor(tester, 0, 7, from: start);
+    expect(
+      (target - start).distance,
+      lessThan(200),
+      reason: 'cross-board placement is a wrist move, not a screen-long drag',
+    );
+
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(target);
+    await tester.pump();
+    await gesture.up();
+    await tester.pump();
+
+    expect(engine.board.colorAt(0, 7), isNotNull);
   });
 
   testWidgets('grabs a piece from the padded edge of its slot', (tester) async {
@@ -88,9 +118,9 @@ void main() {
     final zone = tester.getRect(slot);
     // Far left of the centered 96px piece box, but inside the slot's share
     // of the tray row.
-    final gesture =
-        await tester.startGesture(Offset(zone.left + 8, zone.center.dy));
-    await gesture.moveTo(pointerFor(tester, 3, 4));
+    final start = Offset(zone.left + 8, zone.center.dy);
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(pointerFor(tester, 3, 4, from: start));
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();
@@ -113,7 +143,7 @@ void main() {
 
     final trayY = tester.getCenter(find.descendant(of: find.byType(TrayView), matching: find.byType(Listener)).first);
     final gesture = await tester.startGesture(trayY);
-    await gesture.moveTo(pointerFor(tester, 4, 7));
+    await gesture.moveTo(pointerFor(tester, 4, 7, from: trayY));
     await tester.pump();
     await gesture.up();
     await tester.pump();
@@ -151,8 +181,9 @@ void main() {
             matching: find.byType(Listener),
           )
           .at(i);
-      final gesture = await tester.startGesture(tester.getCenter(slot));
-      await gesture.moveTo(pointerFor(tester, 6, i));
+      final start = tester.getCenter(slot);
+      final gesture = await tester.startGesture(start);
+      await gesture.moveTo(pointerFor(tester, 6, i, from: start));
       await tester.pump();
       await gesture.up();
       await tester.pump();
@@ -188,8 +219,9 @@ void main() {
             matching: find.byType(Listener),
           )
           .at(slot);
-      final gesture = await tester.startGesture(tester.getCenter(target));
-      await gesture.moveTo(pointerFor(tester, row, col));
+      final start = tester.getCenter(target);
+      final gesture = await tester.startGesture(start);
+      await gesture.moveTo(pointerFor(tester, row, col, from: start));
       await tester.pump();
       await gesture.up();
       await tester.pump();
@@ -227,8 +259,11 @@ void main() {
             matching: find.byType(Listener),
           )
           .at(slot);
-      final gesture = await tester.startGesture(tester.getCenter(target));
-      await gesture.moveTo(pointerFor(tester, row, col, w: w, h: h));
+      final start = tester.getCenter(target);
+      final gesture = await tester.startGesture(start);
+      await gesture.moveTo(
+        pointerFor(tester, row, col, from: start, w: w, h: h),
+      );
       await tester.pump();
       await gesture.up();
       await tester.pump();
@@ -259,8 +294,9 @@ void main() {
     final slot = find
         .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
         .first;
-    final gesture = await tester.startGesture(tester.getCenter(slot));
-    await gesture.moveTo(pointerFor(tester, 3, 3));
+    final start = tester.getCenter(slot);
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(pointerFor(tester, 3, 3, from: start));
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();
@@ -324,11 +360,12 @@ void main() {
     final slot = find
         .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
         .first;
-    final gesture = await tester.startGesture(tester.getCenter(slot));
+    final start = tester.getCenter(slot);
+    final gesture = await tester.startGesture(start);
     await tester.pump();
     expect(ticks, 0, reason: 'the pickup tap is not a cell tick');
 
-    await gesture.moveTo(pointerFor(tester, 3, 3));
+    await gesture.moveTo(pointerFor(tester, 3, 3, from: start));
     await tester.pump();
     expect(ticks, 1);
 
@@ -337,19 +374,16 @@ void main() {
     await tester.pump();
     expect(ticks, 1);
 
-    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await gesture.moveTo(pointerFor(tester, 3, 4, from: start));
     await tester.pump();
     expect(ticks, 2);
 
     // Leaving the board is quiet; coming back over a cell ticks again.
-    final board = tester.getRect(find.byType(BoardView));
-    await gesture.moveTo(
-      Offset(board.left - 40, pointerFor(tester, 3, 4).dy),
-    );
+    await gesture.moveTo(pointerFor(tester, 3, -2, from: start));
     await tester.pump();
     expect(ticks, 2);
 
-    await gesture.moveTo(pointerFor(tester, 3, 4));
+    await gesture.moveTo(pointerFor(tester, 3, 4, from: start));
     await tester.pump();
     expect(ticks, 3);
 
@@ -388,8 +422,9 @@ void main() {
     final slot = find
         .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
         .first;
-    final gesture = await tester.startGesture(tester.getCenter(slot));
-    await gesture.moveTo(pointerFor(tester, 4, 7));
+    final start = tester.getCenter(slot);
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(pointerFor(tester, 4, 7, from: start));
     await tester.pump();
     expect(buzzes, 0, reason: 'no buzz before the drop lands');
 
@@ -408,8 +443,9 @@ void main() {
     final slot = find
         .descendant(of: find.byType(TrayView), matching: find.byType(Listener))
         .first;
-    final gesture = await tester.startGesture(tester.getCenter(slot));
-    await gesture.moveTo(pointerFor(tester, 3, 3));
+    final start = tester.getCenter(slot);
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(pointerFor(tester, 3, 3, from: start));
     await tester.pump();
     await gesture.cancel();
     await tester.pump();

@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v1.7.0 - 2026-10-28
+#### Features
+- 小幅滑动即可把方块放到棋盘任意位置 - (9f4cc4b) - Devin
+
+- - -
+
 ## v1.6.0 - 2026-09-24
 #### Features
 - 消行时触发大震动 - (b60b64b) - HttpAnimations

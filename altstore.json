@@ -42,6 +42,14 @@
       },
       "versions": [
         {
+          "version": "1.7.0",
+          "date": "2026-10-28T15:56:55Z",
+          "localizedDescription": "**Version:** 1.7.0\n**Build:** #24\n**Date:** 2026-10-28\n**Commit:** 3b8a56f83791deba441ad3c70b7de0b883f7b6e2\n\n### Artifacts\n- Android (signed apk + aab)\n- Linux desktop (x86_64 + arm64: tar.gz, zip, deb, rpm)\n- Windows (x86_64 + arm64: zip)\n- macOS (arm64: zip, dmg)\n- iOS (arm64: unsigned ipa)\n\n### Verification\nSHA256 checksums are in `SHA256SUMS.txt`.\n\n\n**Full Changelog**: https://github.com/justacalico/blox/compare/v1.6.0...v1.7.0",
+          "downloadURL": "https://github.com/justacalico/blox/releases/download/v1.7.0/blox-ios-arm64-unsigned.ipa",
+          "size": 6571431,
+          "minOSVersion": "13.0"
+        },
+        {
           "version": "1.6.0",
           "date": "2026-09-24T16:15:28Z",
           "localizedDescription": "**Version:** 1.6.0\n**Build:** #21\n**Date:** 2026-09-24\n**Commit:** 3b3c93dff1b324b2336b12a4ab18721e47c998e7\n\n### Artifacts\n- Android (signed apk + aab)\n- Linux desktop (x86_64 + arm64: tar.gz, zip, deb, rpm)\n- Windows (x86_64 + arm64: zip)\n- macOS (arm64: zip, dmg)\n- iOS (arm64: unsigned ipa)\n\n### Verification\nSHA256 checksums are in `SHA256SUMS.txt`.\n\n\n**Full Changelog**: https://github.com/justacalico/blox/compare/v1.5.0...v1.6.0",
@@ -94,10 +102,10 @@
         "entitlements": [],
         "privacy": {}
       },
-      "version": "1.6.0",
-      "versionDate": "2026-09-24T16:15:28Z",
-      "downloadURL": "https://github.com/justacalico/blox/releases/download/v1.6.0/blox-ios-arm64-unsigned.ipa",
-      "size": 6572061
+      "version": "1.7.0",
+      "versionDate": "2026-10-28T15:56:55Z",
+      "downloadURL": "https://github.com/justacalico/blox/releases/download/v1.7.0/blox-ios-arm64-unsigned.ipa",
+      "size": 6571431
     }
   ]
 }

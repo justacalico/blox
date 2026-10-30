@@ -28,6 +28,7 @@ final class _Drag {
   _Drag({
     required this.trayIndex,
     required this.piece,
+    required this.pointerId,
     required Offset pointer,
     required this.grabFraction,
   })  : pointer = pointer,
@@ -35,6 +36,10 @@ final class _Drag {
 
   final int trayIndex;
   final Piece piece;
+
+  /// The pointer that owns this drag. Events from other fingers are
+  /// ignored so a second touch cannot hijack or corrupt it.
+  final int pointerId;
   Offset pointer;
 
   final DragAmplifier _amplifier;
@@ -134,8 +139,8 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   // --- dragging -----------------------------------------------------------
 
-  void _onDragStart(int index, Offset global) {
-    if (_paused || _engine.isGameOver) return;
+  void _onDragStart(int index, Offset global, int pointerId) {
+    if (_drag != null || _paused || _engine.isGameOver) return;
     final piece = _engine.tray[index];
     if (piece == null) return;
 
@@ -152,6 +157,7 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       _drag = _Drag(
         trayIndex: index,
         piece: piece,
+        pointerId: pointerId,
         pointer: global,
         grabFraction: grab,
       );
@@ -160,16 +166,17 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _haptics.tap();
   }
 
-  void _onDragUpdate(Offset global) {
-    if (_drag == null) return;
-    setState(() => _drag!.pointer = global);
+  void _onDragUpdate(Offset global, int pointerId) {
+    final d = _drag;
+    if (d == null || d.pointerId != pointerId) return;
+    setState(() => d.pointer = global);
     _updateAnchor();
   }
 
-  void _onDragEnd(Offset global) {
+  void _onDragEnd(Offset global, int pointerId) {
     final d = _drag;
-    if (d == null) return;
-    _drag!.pointer = global;
+    if (d == null || d.pointerId != pointerId) return;
+    d.pointer = global;
     _updateAnchor();
     final anchor = d.anchor;
     if (d.anchorValid && anchor != null) {
@@ -178,7 +185,9 @@ class GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() => _drag = null);
   }
 
-  void _cancelDrag() => setState(() => _drag = null);
+  void _cancelDrag(int pointerId) {
+    if (_drag?.pointerId == pointerId) setState(() => _drag = null);
+  }
 
   /// Where the dragged piece's top-left would sit on the board, in
   /// board-local pixels.

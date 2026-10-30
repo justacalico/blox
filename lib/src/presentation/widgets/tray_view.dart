@@ -32,10 +32,11 @@ class TrayView extends StatelessWidget {
   final int? draggingIndex;
   final double cellPx;
 
-  final void Function(int index, Offset globalPosition) onDragStart;
-  final void Function(Offset globalPosition) onDragUpdate;
-  final void Function(Offset globalPosition) onDragEnd;
-  final VoidCallback onDragCancel;
+  final void Function(int index, Offset globalPosition, int pointerId)
+      onDragStart;
+  final void Function(Offset globalPosition, int pointerId) onDragUpdate;
+  final void Function(Offset globalPosition, int pointerId) onDragEnd;
+  final void Function(int pointerId) onDragCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class TrayView extends StatelessWidget {
             placeable: i < placeable.length ? placeable[i] : false,
             cellPx: cellPx,
             hidden: draggingIndex == i,
-            onDragStart: (pos) => onDragStart(i, pos),
+            onDragStart: (pos, pointerId) => onDragStart(i, pos, pointerId),
             onDragUpdate: onDragUpdate,
             onDragEnd: onDragEnd,
             onDragCancel: onDragCancel,
@@ -79,10 +80,10 @@ class _TraySlot extends StatelessWidget {
   final bool placeable;
   final double cellPx;
   final bool hidden;
-  final void Function(Offset globalPosition) onDragStart;
-  final void Function(Offset globalPosition) onDragUpdate;
-  final void Function(Offset globalPosition) onDragEnd;
-  final VoidCallback onDragCancel;
+  final void Function(Offset globalPosition, int pointerId) onDragStart;
+  final void Function(Offset globalPosition, int pointerId) onDragUpdate;
+  final void Function(Offset globalPosition, int pointerId) onDragEnd;
+  final void Function(int pointerId) onDragCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +96,14 @@ class _TraySlot extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onPointerDown: p == null
             ? null
-            : (e) => onDragStart(e.position),
-        onPointerMove: p == null ? null : (e) => onDragUpdate(e.position),
-        onPointerUp: p == null ? null : (e) => onDragEnd(e.position),
-        onPointerCancel: p == null ? null : (_) => onDragCancel(),
+            : (e) => onDragStart(e.position, e.pointer),
+        onPointerMove: p == null
+            ? null
+            : (e) => onDragUpdate(e.position, e.pointer),
+        onPointerUp: p == null
+            ? null
+            : (e) => onDragEnd(e.position, e.pointer),
+        onPointerCancel: p == null ? null : (e) => onDragCancel(e.pointer),
         child: Center(
           child: SizedBox(
             width: BloxMetrics.traySlot,

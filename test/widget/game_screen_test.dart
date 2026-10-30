@@ -80,6 +80,41 @@ void main() {
     expect(engine.score, greaterThan(0));
   });
 
+  testWidgets('a second finger cannot hijack an active drag', (tester) async {
+    final engine = scriptedEngine([
+      [dot(3), dot(1), dot(2)],
+      [dot(), dot(), dot()],
+    ]);
+    await pumpGame(tester, engine);
+
+    final slots = find.descendant(
+      of: find.byType(TrayView),
+      matching: find.byType(Listener),
+    );
+    final start0 = tester.getCenter(slots.at(0));
+    final start1 = tester.getCenter(slots.at(1));
+
+    final fingerA = await tester.startGesture(start0, pointer: 7);
+    await tester.pump();
+    final fingerB = await tester.startGesture(start1, pointer: 8);
+    await tester.pump();
+
+    // Finger B pokes around while A still owns the drag.
+    await fingerB.moveTo(pointerFor(tester, 0, 0, from: start1));
+    await tester.pump();
+
+    // A releases over (3,4): A's piece lands there, B's stays in the tray.
+    await fingerA.moveTo(pointerFor(tester, 3, 4, from: start0));
+    await tester.pump();
+    await fingerA.up();
+    await fingerB.up();
+    await tester.pumpAndSettle();
+
+    expect(engine.board.colorAt(3, 4), isNotNull);
+    expect(engine.tray[0], isNull);
+    expect(engine.tray[1], isNotNull);
+  });
+
   testWidgets('a short swipe steers a piece across the board', (tester) async {
     final engine = scriptedEngine([
       [dot(), dot(), dot()],
